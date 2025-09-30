@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HP Dummy Full Aplikasi</title>
+<style>
+body {
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: white;
+  font-family: sans-serif;
+}
+
+.hp-dummy {
+  width: 180px;
+  height: 360px;
+  background: black;
+  border-radius: 28px;
+  position: relative;
+  border: 3px solid #222;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.25);
+  overflow: hidden;
+}
+
+.hp-screen {
+  width: 100%;
+  height: 100%;
+  background: url('wallpaper.jpg') no-repeat center center;
+  background-size: cover;
+  border-radius: 22px;
+  position: relative;
+  overflow: hidden;
+}
+
+.camera {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 10px;
+  height: 10px;
+  background: #333;
+  border-radius: 50%;
+  z-index: 10; /* selalu di atas */
+}
+
+.nav-bar {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 4px;
+  background: rgba(255,255,255,0.7);
+  border-radius: 2px;
+  z-index: 10; /* selalu di atas */
+  cursor: pointer;
+}
+
+.app {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  position: absolute;
+  top: 60px;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.app.blue { left: 20px; background: #3498db; }
+.app.red { left: 70px; background: #e74c3c; }
+.app.green { left: 120px; background: #2ecc71; }
+
+.app-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #fff;
+  border-radius: 22px;
+  transform: scale(0);
+  transition: transform 0.3s ease;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.app-content.active {
+  transform: scale(1);
+  z-index: 5; /* di atas app tapi bawah kamera/nav-bar */
+}
+
+/* Kalkulator biru */
+.calculator {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.display {
+  flex: 1;
+  background: #eee;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 5px;
+  font-size: 14px;
+  box-sizing: border-box;
+  word-wrap: break-word;
+}
+
+.buttons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-gap: 2px;
+  flex: 2;
+}
+
+button {
+  padding: 6px;
+  font-size: 14px;
+  border: none;
+  background: #ddd;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+button.operator { background: #f9a825; color: white; }
+button.clear { background: #e53935; color: white; }
+button:active { transform: scale(0.9); background: #bbb; }
+
+/* Galeri hijau */
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-gap: 4px;
+  padding: 5px;
+  box-sizing: border-box;
+  flex: 1;
+}
+
+.gallery img {
+  width: 100%;
+  aspect-ratio: 1/1;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 2px solid #ccc;
+  cursor: pointer;
+}
+
+.fullscreen-photo {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: none;
+  z-index: 6; /* di atas aplikasi tapi di bawah kamera/nav-bar */
+  border-radius: 22px;
+  background: black;
+}
+.fullscreen-photo.active { display: block; }
+
+/* Kuis merah */
+.quiz {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  height: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+  background: linear-gradient(135deg,#3498db,#9b59b6,#ff79a9);
+  color: white;
+  border-radius: 22px;
+}
+
+#question-container {
+  margin-bottom: 8px;
+}
+
+.option-btn {
+  padding: 6px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  background: rgba(255,255,255,0.3);
+  color: white;
+  margin-bottom: 4px;
+}
+
+.option-btn:hover { background: rgba(255,255,255,0.5); }
+
+#score { text-align: center; margin-top: auto; font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="hp-dummy">
+  <div class="hp-screen">
+    <div class="camera"></div>
+    <div class="nav-bar"></div>
+
+    <!-- Ikon aplikasi -->
+    <div class="app blue" data-app="blue"></div>
+    <div class="app red" data-app="red"></div>
+    <div class="app green" data-app="green"></div>
+
+    <!-- Konten aplikasi -->
+    <div class="app-content" id="blue-content">
+      <div class="calculator">
+        <div class="display" id="calc-display">0</div>
+        <div class="buttons">
+          <button class="clear">C</button>
+          <button class="operator">/</button>
+          <button class="operator">*</button>
+          <button class="operator">-</button>
+
+          <button>7</button>
+          <button>8</button>
+          <button>9</button>
+          <button class="operator">+</button>
+
+          <button>4</button>
+          <button>5</button>
+          <button>6</button>
+          <button class="operator">=</button>
+
+          <button>1</button>
+          <button>2</button>
+          <button>3</button>
+          <button>0</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="app-content" id="green-content">
+      <div class="gallery">
+        <img src="foto1.jpg" alt="Foto 1">
+        <img src="foto2.jpg" alt="Foto 2">
+        <img src="foto3.jpg" alt="Foto 3">
+      </div>
+      <img class="fullscreen-photo" id="photo-view" src="" alt="Fullscreen Foto">
+    </div>
+
+    <div class="app-content" id="red-content">
+      <div class="quiz">
+        <div id="question-container"><h2 id="question"></h2></div>
+        <div id="options"></div>
+        <p id="score"></p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// Animasi buka-tutup aplikasi
+const apps = document.querySelectorAll('.app');
+const navBar = document.querySelector('.nav-bar');
+
+apps.forEach(app=>{
+  app.addEventListener('click',()=>{
+    const appId = app.dataset.app+'-content';
+    document.getElementById(appId).classList.add('active');
+  });
+});
+
+navBar.addEventListener('click',()=>{
+  document.querySelectorAll('.app-content').forEach(c=>c.classList.remove('active'));
+  const fullscreen = document.getElementById('photo-view');
+  fullscreen.classList.remove('active');
+  fullscreen.src='';
+});
+
+// Galeri fullscreen
+const galleryPhotos = document.querySelectorAll('.gallery img');
+const fullscreen = document.getElementById('photo-view');
+galleryPhotos.forEach(photo=>{
+  photo.addEventListener('click',()=>{
+    fullscreen.src = photo.src;
+    fullscreen.classList.add('active');
+  });
+});
+
+// Kalkulator logic
+const display = document.getElementById('calc-display');
+const buttons = document.querySelectorAll('#blue-content button');
+let current='';
+let operator='';
+let first=null;
+
+buttons.forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const val=btn.textContent;
+    if(btn.classList.contains('clear')){
+      current='';
+      first=null;
+      operator='';
+      display.textContent='0';
+    } else if(btn.classList.contains('operator')){
+      if(val==='='){
+        if(first!==null && operator){
+          current=eval(`${first}${operator}${current}`);
+          display.textContent=current;
+          first=null;
+          operator='';
+        }
+      } else {
+        if(current){
+          first=current;
+          operator=val;
+          current='';
+        }
+      }
+    } else {
+      current+=val;
+      display.textContent=current;
+    }
+  });
+});
+
+// Kuis merah
+const quizData=[
+  {question:"Apa itu CPU?",options:["Central Processing Unit","Computer Personal Unit","Central Programming Unit","Core Power Unit"],answer:"Central Processing Unit"},
+  {question:"Apa singkatan dari RAM?",options:["Random Access Memory","Read Access Memory","Rapid Application Module","Random Application Memory"],answer:"Random Access Memory"},
+  {question:"Apa fungsi motherboard?",options:["Menghubungkan komponen komputer","Menyimpan data permanen","Menampilkan gambar","Menjalankan antivirus"],answer:"Menghubungkan komponen komputer"},
+  {question:"Apa itu SSD?",options:["Solid State Drive","Super Storage Device","Solid Storage Disk","System Storage Drive"],answer:"Solid State Drive"},
+  {question:"Bahasa pemrograman populer di web?",options:["JavaScript","Python","C++","Pascal"],answer:"JavaScript"},
+  {question:"Apa itu GPU?",options:["Graphics Processing Unit","General Processing Unit","Graphical Power Unit","General Purpose Unit"],answer:"Graphics Processing Unit"},
+  {question:"Sistem operasi populer di PC?",options:["Windows","Linux","macOS","Semua benar"],answer:"Semua benar"},
+  {question:"Apa itu HTML?",options:["HyperText Markup Language","HighText Markdown Language","Hyper Tool Markup Language","Hyperlink Text Markup Language"],answer:"HyperText Markup Language"},
+  {question:"Apa fungsi antivirus?",options:["Melindungi komputer dari virus","Mempercepat CPU","Meningkatkan RAM","Menampilkan grafik lebih bagus"],answer:"Melindungi komputer dari virus"},
+  {question:"Apa itu Cloud Computing?",options:["Pengolahan data via internet","Komputer awan","Menyimpan RAM di cloud","Virtual CPU"],answer:"Pengolahan data via internet"}
+];
+
+let currentQuestion=0;
+let score=0;
+const questionEl = document.getElementById('question');
+const optionsEl = document.getElementById('options');
+const scoreEl = document.getElementById('score');
+
+function loadQuestion(){
+  if(currentQuestion >= quizData.length) return showResult();
+  const q = quizData[currentQuestion];
+  questionEl.textContent = q.question;
+  optionsEl.innerHTML = '';
+  q.options.forEach(opt=>{
+    const btn = document.createElement('button');
+    btn.textContent = opt;
+    btn.className = 'option-btn';
+    btn.onclick = ()=>selectOption(opt);
+    optionsEl.appendChild(btn);
+  });
+  scoreEl.textContent = `Skor: ${score}`;
+}
+
+function selectOption(selected){
+  if(selected === quizData[currentQuestion].answer) score++;
+  currentQuestion++;
+  loadQuestion();
+}
+
+function showResult(){
+  questionEl.textContent='Quiz selesai!';
+  optionsEl.innerHTML='';
+  scoreEl.textContent=`Skor akhir: ${score} / ${quizData.length}`;
+}
+
+loadQuestion();
+</script>
+</body>
+</html>
